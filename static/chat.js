@@ -4,8 +4,8 @@ $(function(){
 	// buttons and inputs
 	var message = $("#message");
 	var send_message = $("#send_message");
-	var chatroom = $("#chatroom");
 	var messages = $("#messages");
+	var msgObj = $("#messages")[0];
 
 	var timestamp;
 	var time_string;
@@ -47,6 +47,7 @@ $(function(){
 				html += "<span class='msgcontent'>" + " " + data.message;
 		
 				messages.append(html);
+				msgObj.scrollTop = msgObj.scrollHeight;
 			}
 		}
 
