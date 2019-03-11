@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="style.css" >
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    <title>Chat Out App</title>
+  </head>
+  <body>
+    <header>
+      <h1>Chat Out</h1>
+    </header>
+    <aside id="userlist">
+      <h2>Online Users</h2>
+      <div id="users"></div>
+    </aside>
+
+    <section id="chatroom">
+      <section id="messages"></section>
+    </section>
+
+    <section id="input_text"> 
+      <input id="message" class="vertical-align" type="text" />
+      <button id="send_message" class="vertical-align" type="button">Send</button>
+      <script>
+          var input = window.document.getElementById("message");
+          input.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+             event.preventDefault();
+             document.getElementById("send_message").click();
+            }
+          });
+          </script>
+          
+    </section>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="chat.js"></script>
+  </body>
+</html>
