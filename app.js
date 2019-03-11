@@ -11,6 +11,7 @@ app.get('/', (req, res) => {
 // port 8080
 server = app.listen(8080);
 
+var connections = [];
 var users = [];
 
 //socket instantiation
@@ -25,30 +26,43 @@ function getName() {
 
 io.on('connection', (socket) => {
 
+    var user = {};
     socket.nickname = getName();
     socket.color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-    users.push(socket);
-    io.sockets.emit('connected', {nickname : socket.nickname, color: socket.color});
 
-    //console.log(users);
-    //io.sockets.emit('updateusers', {users});
+    user.nickname = socket.nickname;
+    user.color = socket.color;
+
+    connections.push(socket);
+    users.push(user);
+
+    io.sockets.emit('connected', {nickname : socket.nickname, color: socket.color});
+    io.sockets.emit('update_users', users);
 
     // Disconnect user
     socket.on('disconnect', () => {
-        var i = users.indexOf(socket);
-        users.splice(i, 1);
+        connections.splice(connections.indexOf(socket), 1);
+        users.splice(users.indexOf(user), 1);
         io.sockets.emit('disconnected', {nickname : socket.nickname, color: socket.color});
+        io.sockets.emit('update_users', users);
     });
 
-    
     // Change nickname
     socket.on('change_name', (data) => {
+        let key = (users.findIndex(x => x.nickname == socket.nickname));
         socket.nickname = data.nickname;
+        user.nickname = data.nickname;
+        users[key].nickname = data.nickname;
+        io.sockets.emit('update_users', users);
     });
 
     // Change color
     socket.on('change_color', (data) => {
+        let key = (users.findIndex(x => x.nickname == socket.nickname));
         socket.color = data.color;
+        user.color = data.color;
+        users[key].color = data.color;
+        io.sockets.emit('update_users', users);
     });
 
     // Send message

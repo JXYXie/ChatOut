@@ -5,7 +5,8 @@ $(function(){
 	var message = $("#message");
 	var send_message = $("#send_message");
 	var messages = $("#messages");
-	var msgObj = $("#messages")[0];
+	var msg_obj = $("#messages")[0];
+	var users_obj = $("#users");
 
 	var timestamp;
 	var time_string;
@@ -47,7 +48,7 @@ $(function(){
 				html += "<span class='msgcontent'>" + " " + data.message;
 		
 				messages.append(html);
-				msgObj.scrollTop = msgObj.scrollHeight;
+				msg_obj.scrollTop = msg_obj.scrollHeight;
 			}
 		}
 
@@ -68,6 +69,7 @@ $(function(){
 		html += "<span class='msgcontent'>" + " has connected to the server.</span>";
 
 		messages.append(html);
+		msg_obj.scrollTop = msg_obj.scrollHeight;
 	});
 
 	socket.on('disconnected', (data) => {
@@ -85,17 +87,16 @@ $(function(){
 		html += "<span class='msgcontent'>" + " has disconnected from the server.</span>";
 
 		messages.append(html);
+		msg_obj.scrollTop = msg_obj.scrollHeight;
 	});
 
-	socket.on('updateusers'), (data) => {
-		console.log(data);
-		let newHTML = [];
-        for (let i = 0; i < data.length; i++) {
-            newHTML.push('<p style="color:' +  data[i].color + ';">' + data[i].name + '</p>');
-        }
-        $('#users').html(newHTML.join(''));
-	}
-
+	socket.on('update_users', (data) => {
+		let user_html = [];
+		for (let i = 0; i < data.length; i++) {
+			user_html.push("<p class='nickname' style='color:" + data[i].color + ";'>" + data[i].nickname + "</p>");
+		}
+		users_obj.html(user_html.join(""));
+	});
 });
 
 
