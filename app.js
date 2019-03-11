@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
 
     socket.nickname = getName();
     socket.color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-    users.push(socket.nickname);
+    users.push(socket);
     io.sockets.emit('connected', {nickname : socket.nickname, color: socket.color});
 
     //console.log(users);
@@ -35,14 +35,20 @@ io.on('connection', (socket) => {
 
     // Disconnect user
     socket.on('disconnect', () => {
-        users = [];
-        io.emit('getuser');
-        io.send("User has disconnected");
+        var i = users.indexOf(socket);
+        users.splice(i, 1);
+        io.sockets.emit('disconnected', {nickname : socket.nickname, color: socket.color});
     });
+
     
     // Change nickname
     socket.on('change_name', (data) => {
         socket.nickname = data.nickname;
+    });
+
+    // Change color
+    socket.on('change_color', (data) => {
+        socket.color = data.color;
     });
 
     // Send message

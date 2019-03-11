@@ -17,21 +17,15 @@ $(function(){
 
 	//Listen sent messages
 	socket.on("new_message", (data) => {
-		messages.html('');
 		message.val('');
 
 		if (data.message.length > 0) {
             if (data.message.startsWith("/nickcolor")) {
-                let colours = data.message.slice(10);
-                colours = colours.trim();
-                if (colours.length === 6) {
-                    name_colour =  "#" + colours;
-                    document.cookie = "colour=" + name_colour;
-                    socket.emit('colourchange');
-				}
-				else {
-                    let msg = "Incorrect colour format. Please use /nickcolor RRGGBB format";
-                    message.append($('<li class="svmsg">').text(msg));
+                let newcolor = data.message.slice(10);
+                newcolor = newcolor.trim();
+                if (newcolor.length === 6) {
+                    newcolor =  "#" + newcolor;
+                    socket.emit('change_color', {color: newcolor});
 				}
 			}
 			else if (data.message.startsWith("/nick")) {	
@@ -46,7 +40,13 @@ $(function(){
 				minutes = ("0" + minutes).slice(-2);
 		
 				time_string = "[" + hours + ":" + minutes + "] ";
-				chatroom.append("<p class='message'; style='color':" + data.color + ";'>" + time_string + data.nickname + ": " + data.message + "</p>");
+
+				let html = "<div class='message'>";
+				html += "<span class='timestamp'>" + time_string  + "</span>";
+				html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
+				html += "<span class='msgcontent'>" + " " + data.message;
+		
+				messages.append(html);
 			}
 		}
 
@@ -58,10 +58,32 @@ $(function(){
 		hours = ("0" + hours).slice(-2);
 		minutes = timestamp.getMinutes();
 		minutes = ("0" + minutes).slice(-2);
-		//data.color = data.color.trim();
 
 		time_string = "[" + hours + ":" + minutes + "] ";
-		chatroom.append("<p class='message'; style='color':" + data.color + ";'>" + time_string + "User <strong>" + data.nickname + "</strong> has connected to the server.</p>");
+
+		let html = "<div class='message'>";
+		html += "<span class='timestamp'>" + time_string  + "</span>";
+		html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
+		html += "<span class='msgcontent'>" + " has connected to the server.</span>";
+
+		messages.append(html);
+	});
+
+	socket.on('disconnected', (data) => {
+		timestamp = new Date();
+		hours = timestamp.getHours();
+		hours = ("0" + hours).slice(-2);
+		minutes = timestamp.getMinutes();
+		minutes = ("0" + minutes).slice(-2);
+
+		time_string = "[" + hours + ":" + minutes + "] ";
+
+		let html = "<div class='message'>";
+		html += "<span class='timestamp'>" + time_string  + "</span>";
+		html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
+		html += "<span class='msgcontent'>" + " has disconnected from the server.</span>";
+
+		messages.append(html);
 	});
 
 	socket.on('updateusers'), (data) => {
