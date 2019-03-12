@@ -7,51 +7,25 @@ $(function(){
 	var messages = $("#messages");
 	var msg_obj = $("#messages")[0];
 	var users_obj = $("#users");
+	var title = $("#title");
 
 	var timestamp;
 	var time_string;
 
 	// Sent message
 	send_message.click(function(){
-		socket.emit('new_message', {message : message.val()});
+		socket.emit('chat_message', {message : message.val()});
 	});
 
 	//Listen sent messages
 	socket.on("new_message", (data) => {
 		message.val('');
-
-		if (data.message.length > 0) {
-            if (data.message.startsWith("/nickcolor")) {
-                let newcolor = data.message.slice(10);
-                newcolor = newcolor.trim();
-                if (newcolor.length === 6) {
-                    newcolor =  "#" + newcolor;
-                    socket.emit('change_color', {color: newcolor});
-				}
-			}
-			else if (data.message.startsWith("/nick")) {	
-				let newnickname = data.message.slice(6);
-				socket.emit('change_name', {nickname : newnickname});
-			}
-			else {
-				timestamp = new Date();
-				hours = timestamp.getHours();
-				hours = ("0" + hours).slice(-2);
-				minutes = timestamp.getMinutes();
-				minutes = ("0" + minutes).slice(-2);
-		
-				time_string = "[" + hours + ":" + minutes + "] ";
-
-				let html = "<div class='message'>";
-				html += "<span class='timestamp'>" + time_string  + "</span>";
-				html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
-				html += "<span class='msgcontent'>" + " " + data.message;
-		
-				messages.append(html);
-				msg_obj.scrollTop = msg_obj.scrollHeight;
-			}
+		if (data.msg.length > 0) {
+			display(data);
 		}
-
+		else {
+			return;
+		}
 	});
 
 	socket.on('connected', (data) => {
@@ -96,7 +70,32 @@ $(function(){
 			user_html.push("<p class='nickname' style='color:" + data[i].color + ";'>" + data[i].nickname + "</p>");
 		}
 		users_obj.html(user_html.join(""));
+		console.log(socket);
+		
 	});
-});
 
+	socket.on('update_self', (data) => {
+		message.val('');
+		title.html("Welcome to Chat Out &#128172 You are " + data);
+	});
+
+	function display(data) {
+
+		let user_time = new Date(data.timestamp);
+		hours = user_time.getHours();
+		hours = ("0" + hours).slice(-2);
+		minutes = user_time.getMinutes();
+		minutes = ("0" + minutes).slice(-2);
+		time_string = "[" + hours + ":" + minutes + "] ";
+
+		let html = "<div class='message'>";
+		html += "<span class='timestamp'>" + time_string  + "</span>";
+		html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
+		html += "<span class='msgcontent'>" + " " + data.msg;
+
+		messages.append(html);
+		msg_obj.scrollTop = msg_obj.scrollHeight;
+	}
+
+});
 

@@ -9,10 +9,10 @@
   </head>
   <body>
     <header>
-      <h1>Chat Out</h1>
+      <h2 id = "title">Chat Out</h2>
+      <h2 id = "users_title">Online Users</h2>
     </header>
     <aside id="userlist">
-      <h2>Online Users</h2>
       <section id="users"></section>
     </aside>
 
@@ -21,8 +21,8 @@
     </section>
 
     <section id="input_text"> 
-      <input id="message" class="vertical-align" type="text" />
-      <button id="send_message" class="vertical-align" type="button">Send</button>
+      <input id="message" type="text" />
+      <button id="send_message" class="btn btn-primary btn-block">Send</button>
       <script>
           var input = window.document.getElementById("message");
           input.addEventListener("keyup", function(event) {
