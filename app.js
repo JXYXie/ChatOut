@@ -146,7 +146,6 @@ io.on('connection', (socket) => {
         msg_format.color = socket.color;
 
         log.push(msg_format);
-        console.log(log);
         io.emit('new_message', msg_format);
 
         }
