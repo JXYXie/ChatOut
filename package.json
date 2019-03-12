@@ -2,14 +2,14 @@
   "name": "chatout",
   "version": "0.7.0",
   "main": "app.js",
+  "author": "Jack (Xin Yan) Xie",
   "scripts": {
-    "start": "nodemon app"
+    "start": "node app.js"
   },
-  "author": "Xin Yan Xie",
   "dependencies": {
+    "cookies": "^0.7.3",
     "ejs": "^2.6.1",
-    "express": "^4.16.4",
-    "nodemon": "^1.18.10",
+    "express": "^4.15.2",
     "socket.io": "^2.2.0"
   }
 }

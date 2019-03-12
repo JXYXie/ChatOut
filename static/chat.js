@@ -70,13 +70,16 @@ $(function(){
 			user_html.push("<p class='nickname' style='color:" + data[i].color + ";'>" + data[i].nickname + "</p>");
 		}
 		users_obj.html(user_html.join(""));
-		console.log(socket);
 		
 	});
 
 	socket.on('update_self', (data) => {
 		message.val('');
-		title.html("Welcome to Chat Out &#128172 You are " + data);
+
+		document.cookie = "nickname=" + data.nickname;
+		document.cookie = "color=" + data.color;
+
+		title.html("Welcome to Chat Out &#128172 You are " + data.nickname);
 	});
 
 	function display(data) {

@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cookie = require('cookie');
 
 app.set('view engine', 'ejs');
 app.use(express.static('static'));
@@ -11,8 +12,8 @@ app.get('/', (req, res) => {
 // port 8080
 server = app.listen(8080);
 
-var connections = [];
 var users = [];
+var all_users = [];
 
 //socket instantiation
 const io = require("socket.io")(server);
@@ -24,43 +25,51 @@ function getName() {
     return id;
 }
 
+function userExists(name) {
+    return all_users.find(x => {
+        return x.nickname === name;
+    }) !== undefined;
+}
+
 io.on('connection', (socket) => {
 
     var user = {};
-    socket.nickname = getName();
-    socket.color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+    var cookies = {};
+    let cookies_str = socket.handshake.headers['cookie'];
+    if (cookies_str !== undefined) {
+        cookies = cookie.parse(cookies_str);
+    }
+    if (cookies.nickname == undefined) {
+        do {
+            socket.nickname = getName();
+        } while (userExists(socket.nickname));
+        socket.color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        user.nickname = socket.nickname;
+        user.color = socket.color;
+        all_users.push(user);
+    }
+    else {
+        socket.nickname = cookies.nickname;
+        socket.color = cookies.color;
+        user.nickname = socket.nickname;
+        user.color = socket.color;
+    }
 
-    user.nickname = socket.nickname;
-    user.color = socket.color;
-
-    connections.push(socket);
-    users.push(user);
+    if (users.find(x => {
+        return x.nickname === user.nickname;
+    }) === undefined) {
+        users.push(user);
+    }
 
     io.emit('connected', {nickname : socket.nickname, color: socket.color});
     io.emit('update_users', users);
-    socket.emit('update_self', user.nickname);
+    socket.emit('update_self', user);
 
     // Disconnect user
     socket.on('disconnect', () => {
-        connections.splice(connections.indexOf(socket), 1);
         users.splice(users.indexOf(user), 1);
-        io.emit('disconnected', {nickname : socket.nickname, color: socket.color});
-        socket.emit('update_users', users);
-    });
-
-    // Change nickname
-    socket.on('change_name', (data) => {
-        let user_ind = (users.findIndex(x => x.nickname == socket.nickname));
-        let conn_ind = (users.findIndex(x => x.nickname == socket.nickname));
-
-        console.log("Before: " + socket.nickname + " " + user.nickname);
-        socket.nickname = data.nickname;
-        user.nickname = data.nickname;
-
-        users[user_ind].nickname = data.nickname;
-        connections[conn_ind].nickname = data.nickname;
         io.emit('update_users', users);
-        socket.emit('update_self', user.nickname);
+        io.emit('disconnected', {nickname : socket.nickname, color: socket.color});
     });
 
     // Send message
@@ -79,10 +88,9 @@ io.on('connection', (socket) => {
             user.color = newcolor;
 
             users[user_ind].color = newcolor;
-            connections[conn_ind].color = newcolor;
 
             io.emit('update_users', users);
-            socket.emit('update_self', user.nickname);
+            socket.emit('update_self', user);
         }
     }
     else if (data.message.startsWith("/nick")) {
@@ -97,10 +105,9 @@ io.on('connection', (socket) => {
             user.nickname = newnickname;
 
             users[user_ind].nickname = newnickname;
-            connections[conn_ind].nickname = newnickname;
 
             io.emit('update_users', users);
-            socket.emit('update_self', user.nickname);
+            socket.emit('update_self', user);
         }
 
     }
