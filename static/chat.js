@@ -29,43 +29,7 @@ $(function(){
 			return;
 		}
 	});
-
-	socket.on('connected', (data) => {
-		timestamp = new Date();
-		hours = timestamp.getHours();
-		hours = ("0" + hours).slice(-2);
-		minutes = timestamp.getMinutes();
-		minutes = ("0" + minutes).slice(-2);
-
-		time_string = "[" + hours + ":" + minutes + "] ";
-
-		let html = "<div class='message'>";
-		html += "<span class='timestamp'>" + time_string  + "</span>";
-		html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
-		html += "<span class='msgcontent'>" + " has connected to the server.</span>";
-
-		messages.append(html);
-		msg_obj.scrollTop = msg_obj.scrollHeight;
-	});
-
-	socket.on('disconnected', (data) => {
-		timestamp = new Date();
-		hours = timestamp.getHours();
-		hours = ("0" + hours).slice(-2);
-		minutes = timestamp.getMinutes();
-		minutes = ("0" + minutes).slice(-2);
-
-		time_string = "[" + hours + ":" + minutes + "] ";
-
-		let html = "<div class='message'>";
-		html += "<span class='timestamp'>" + time_string  + "</span>";
-		html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
-		html += "<span class='msgcontent'>" + " has disconnected from the server.</span>";
-
-		messages.append(html);
-		msg_obj.scrollTop = msg_obj.scrollHeight;
-	});
-
+	
 	socket.on('update_users', (data) => {
 		let user_html = [];
 		for (let i = 0; i < data.length; i++) {
@@ -83,6 +47,14 @@ $(function(){
 		document.cookie = "color=" + data.color;
 
 		title.html("Welcome to Chat Out &#128172 You are " + data.nickname);
+	});
+
+	socket.on('load_from_log', (data) => {
+
+		for (let x of data) {
+			display(x);
+		}
+
 	});
 
 	function display(data) {
@@ -107,8 +79,6 @@ $(function(){
 		}
 
 		messages.append(html);
-
-
 		msg_obj.scrollTop = msg_obj.scrollHeight;
 	}
 

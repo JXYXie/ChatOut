@@ -15,6 +15,11 @@ server = app.listen(8080);
 var users = [];
 var all_users = [];
 
+var log = [];
+
+var timestamp;
+var msg_format;
+
 //socket instantiation
 const io = require("socket.io")(server);
 
@@ -61,15 +66,36 @@ io.on('connection', (socket) => {
         users.push(user);
     }
 
-    io.emit('connected', {nickname : socket.nickname, color: socket.color});
+    timestamp = new Date();
+    msg_format = {};
+    msg_format.msg = "has connected to the server.";
+    msg_format.timestamp = timestamp;
+    msg_format.nickname = socket.nickname;
+    msg_format.color = socket.color;
+
+    log.push(msg_format);
+
+    socket.broadcast.emit('new_message', msg_format);
     io.emit('update_users', users);
     socket.emit('update_self', user);
 
+    socket.emit('load_from_log', log);
+
     // Disconnect user
     socket.on('disconnect', () => {
+        timestamp = new Date();
+        msg_format = {};
+        msg_format.msg = "";
+        msg_format.msg += "has disconnected from the server.";
+        msg_format.timestamp = timestamp;
+        msg_format.nickname = socket.nickname;
+        msg_format.color = socket.color;
+
+        log.push(msg_format);
+
         users.splice(users.indexOf(user), 1);
         io.emit('update_users', users);
-        io.emit('disconnected', {nickname : socket.nickname, color: socket.color});
+        io.emit('new_message', msg_format);
     });
 
     // Send message
@@ -112,14 +138,17 @@ io.on('connection', (socket) => {
 
     }
     else {
-        let timestamp = new Date();
-        let msg_format = {};
+        timestamp = new Date();
+        msg_format = {};
         msg_format.msg = data.message;
         msg_format.timestamp = timestamp;
         msg_format.nickname = socket.nickname;
         msg_format.color = socket.color;
 
+        log.push(msg_format);
+        console.log(log);
         io.emit('new_message', msg_format);
+
         }
     });
 
