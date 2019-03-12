@@ -1,7 +1,7 @@
 $(function(){
 	var socket = io.connect('http://localhost:8080');
 
-	// buttons and inputs
+	// Document objects
 	var message = $("#message");
 	var send_message = $("#send_message");
 	var messages = $("#messages");
@@ -9,17 +9,15 @@ $(function(){
 	var users_obj = $("#users");
 	var title = $("#title");
 
-	var timestamp;
 	var time_string;
-
 	var curr_user;
 
-	// Sent message
+	// Send message
 	send_message.click(function(){
 		socket.emit('chat_message', {message : message.val()});
 	});
 
-	//Listen sent messages
+	// Listen for sent messages
 	socket.on("new_message", (data) => {
 		message.val('');
 		if (data.msg.length > 0) {
@@ -29,7 +27,8 @@ $(function(){
 			return;
 		}
 	});
-	
+
+	// Update list of users
 	socket.on('update_users', (data) => {
 		let user_html = [];
 		for (let i = 0; i < data.length; i++) {
@@ -39,6 +38,7 @@ $(function(){
 		
 	});
 
+	// Update welcome message and cookies
 	socket.on('update_self', (data) => {
 		message.val('');
 		curr_user = data.nickname;
@@ -49,14 +49,14 @@ $(function(){
 		title.html("Welcome to Chat Out &#128172 You are " + data.nickname);
 	});
 
+	// Load messages from message log
 	socket.on('load_from_log', (data) => {
-
 		for (let x of data) {
 			display(x);
 		}
-
 	});
 
+	// HTML display
 	function display(data) {
 
 		let user_time = new Date(data.timestamp);
@@ -68,7 +68,7 @@ $(function(){
 
 		let html = "<div class='message'>";
 		html += "<span class='timestamp'>" + time_string  + "</span>";
-		
+		// User's own messages are bolded
 		if (curr_user === data.nickname) {
 			html += "<span class='nickname-bold' style='color:" + data.color + ";'>" + data.nickname + "</span>";
 			html += "<span class='msgcontent-bold'>" + " " + data.msg;
@@ -77,10 +77,7 @@ $(function(){
 			html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
 			html += "<span class='msgcontent'>" + " " + data.msg;
 		}
-
 		messages.append(html);
 		msg_obj.scrollTop = msg_obj.scrollHeight;
 	}
-
 });
-
