@@ -12,6 +12,8 @@ $(function(){
 	var timestamp;
 	var time_string;
 
+	var curr_user;
+
 	// Sent message
 	send_message.click(function(){
 		socket.emit('chat_message', {message : message.val()});
@@ -75,6 +77,7 @@ $(function(){
 
 	socket.on('update_self', (data) => {
 		message.val('');
+		curr_user = data.nickname;
 
 		document.cookie = "nickname=" + data.nickname;
 		document.cookie = "color=" + data.color;
@@ -93,10 +96,19 @@ $(function(){
 
 		let html = "<div class='message'>";
 		html += "<span class='timestamp'>" + time_string  + "</span>";
-		html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
-		html += "<span class='msgcontent'>" + " " + data.msg;
+		
+		if (curr_user === data.nickname) {
+			html += "<span class='nickname-bold' style='color:" + data.color + ";'>" + data.nickname + "</span>";
+			html += "<span class='msgcontent-bold'>" + " " + data.msg;
+		}
+		else {
+			html += "<span class='nickname' style='color:" + data.color + ";'>" + data.nickname + "</span>";
+			html += "<span class='msgcontent'>" + " " + data.msg;
+		}
 
 		messages.append(html);
+
+
 		msg_obj.scrollTop = msg_obj.scrollHeight;
 	}
 

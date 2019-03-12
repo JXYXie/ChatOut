@@ -4,6 +4,7 @@
 
 html {
     height: 100%;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
@@ -47,8 +48,16 @@ section#messages {
     overflow-y: auto;
 }
 
-.timestamp, .msgcontent {
+.timestamp, .msgcontent, .msgcontent-bold {
     color: white;
+}
+
+.msgcontent-bold {
+    font-weight: bold;
+}
+
+.nickname-bold {
+    font-weight: bold;
 }
 
 section#input_text {
