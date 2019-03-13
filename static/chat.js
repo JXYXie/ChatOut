@@ -8,6 +8,7 @@ $(function(){
 	var msg_obj = $("#messages")[0];
 	var users_obj = $("#users");
 	var title = $("#title");
+	var typing = $("#typing");
 
 	var time_string;
 	var curr_user;
@@ -19,6 +20,7 @@ $(function(){
 
 	// Listen for sent messages
 	socket.on("new_message", (data) => {
+		typing.html('');
 		message.val('');
 		if (data.msg.length > 0) {
 			display(data);
@@ -54,6 +56,16 @@ $(function(){
 		for (let x of data) {
 			display(x);
 		}
+	});
+
+	// When user is typing
+	message.bind('keypress', () => {
+		socket.emit('typing');
+	});
+
+	socket.on('typing', (data) => {
+		typing.html('');
+		typing.html(data + " is typing...");
 	});
 
 	// HTML display

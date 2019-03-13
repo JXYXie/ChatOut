@@ -96,6 +96,11 @@ io.on('connection', (socket) => {
         io.emit('new_message', msg_format);
     });
 
+    // User is typing
+    socket.on('typing', (data) => {
+        socket.broadcast.emit('typing', user.nickname);
+    });
+
     // Send message
     socket.on('chat_message', (data) => {
         // Change user color

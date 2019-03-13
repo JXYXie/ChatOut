@@ -48,6 +48,15 @@ section#messages {
     overflow-y: auto;
 }
 
+section#typing {
+    background: none;
+    padding: 0 0.4rem;
+    text-align: left;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.75vh;
+    color: #4C728D;
+}
+
 .timestamp, .msgcontent, .msgcontent-bold {
     color: white;
 }
